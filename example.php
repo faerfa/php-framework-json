@@ -1,11 +1,3 @@
-# php-framework-json
-对 JSON 进行序列化和反序列化 
-
-> 注意低于 php 8.1 无法运行
-
-### 示例
-
-```php
 <?php
 declare(strict_types=1);
 
@@ -85,6 +77,3 @@ try {
     var_dump($e->getMessage());
 }
 
-
-
-```
