@@ -96,51 +96,46 @@ class Json
             }
 
             if ($reflectionPropertyType->isBuiltin()) {
-                switch ($reflectionPropertyType->getName()) {
-                    case "array":
-                        $array = [];
-                        foreach ($value as $item) {
-                            if ($item instanceof DateTime) {
-                                if (isset($jsonDateTimeFormat)) {
-                                    $array[$name] = $item->format($jsonDateTimeFormat->getFormat());
-                                } else {
-                                    $array[$name] = $item->getTimestamp();
-                                }
+                if ($reflectionPropertyType->getName() == "array" || is_array($value)) {
+                    $array = [];
+                    foreach ($value as $item) {
+                        if ($item instanceof DateTime) {
+                            if (isset($jsonDateTimeFormat)) {
+                                $array[$name] = $item->format($jsonDateTimeFormat->getFormat());
+                            } else {
+                                $array[$name] = $item->getTimestamp();
+                            }
 
-                            } else if (isset($jsonPropertyType)) {
+                        } else if (isset($jsonPropertyType)) {
 
-                                if (enum_exists($jsonPropertyType->getName())) {
-                                    try {
-                                        $reflectionEnum = new ReflectionEnum($item);
-                                        if ($reflectionEnum->isBacked()) {
-                                            $values[$name] = $item;
-                                        } else {
-                                            $values[$name] = $item->name;
-                                        }
-                                    } catch (ReflectionException) {
-                                        continue;
+                            if (enum_exists($jsonPropertyType->getName())) {
+                                try {
+                                    $reflectionEnum = new ReflectionEnum($item);
+                                    if ($reflectionEnum->isBacked()) {
+                                        $values[$name] = $item;
+                                    } else {
+                                        $values[$name] = $item->name;
                                     }
-
-                                } else if (class_exists($jsonPropertyType->getName())) {
-                                    $array[$name] = self::_serialize($item);
-                                } else {
-                                    $array[$name] = $item;
+                                } catch (ReflectionException) {
+                                    continue;
                                 }
 
+                            } else if (class_exists($jsonPropertyType->getName())) {
+                                $array[$name] = self::_serialize($item);
                             } else {
                                 $array[$name] = $item;
                             }
-                        }
-                        $values[$name] = $array;
-                        break;
-                    case "object":
-                        $values[$name] = self::_serialize($value);
-                        break;
-                    default:
-                        $values[$name] = $value;
-                        break;
-                }
 
+                        } else {
+                            $array[$name] = $item;
+                        }
+                    }
+                    $values[$name] = $array;
+                } else if ($reflectionPropertyType->getName() == "object" || is_object($value)) {
+                    $values[$name] = self::_serialize($value);
+                } else {
+                    $values[$name] = $value;
+                }
             } else {
 
                 if ($value instanceof DateTime) {
