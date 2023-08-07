@@ -316,7 +316,7 @@ class Json
                             foreach ($reflectionEnum->getCases() as $backedCase) {
                                 if ($backedCase->getBackingValue() != $objectPropertyValue) continue;
                                 $targetReflectionProperty->setValue($target, $backedCase->getValue());
-                                break;
+                                continue 2;
                             }
                             throw new JsonException("Invalid enum value: " . $objectPropertyValue . " for enum " . $targetPropertyName);
                         } else {
